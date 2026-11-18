@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>原文保管庫</title>
+<style>
+:root{--bg:#eef1f3;--cd:#fff;--tx:#14211f;--mu:#62706d;--ac:#0f766e;--ac2:#d9f0ec;--bd:#d8dfdd;--st:#e08a00;--dn:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#101615;--cd:#18211f;--tx:#e6efed;--mu:#93a39f;--ac:#3cc3b2;--ac2:#173a36;--bd:#2a3633;--st:#f5b13d;--dn:#ff8a7a}}
+:root[data-theme=dark]{--bg:#101615;--cd:#18211f;--tx:#e6efed;--mu:#93a39f;--ac:#3cc3b2;--ac2:#173a36;--bd:#2a3633;--st:#f5b13d;--dn:#ff8a7a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+main{max-width:720px;margin:0 auto;padding:14px 14px 110px}
+section{display:none}section.on{display:block}
+h1{font-size:24px;margin:8px 0 2px}h2{font-size:17px;margin:22px 0 8px}
+.mu{color:var(--mu);font-size:14px}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:10px 0}
+.card[data-id]{cursor:pointer}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px;color:var(--mu)}
+.st{color:var(--st);letter-spacing:1px}
+.tag{background:var(--ac2);color:var(--ac);border-radius:6px;padding:0 8px;font-weight:600}
+.pv{white-space:pre-wrap;word-break:break-word;margin-top:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.full{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px;margin:10px 0;max-height:46vh;overflow:auto;font-family:inherit}
+label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
+input,select,textarea{width:100%;font:inherit;color:var(--tx);background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:12px;min-height:48px}
+textarea{min-height:170px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--ac);outline-offset:1px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.row>*{flex:1;min-width:130px}
+.btn{font:inherit;font-weight:600;min-height:50px;border-radius:12px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);padding:10px 14px;cursor:pointer}
+.btn.p{background:var(--ac);border-color:var(--ac);color:#fff}.btn.d{color:var(--dn)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .btn.p{color:#07201c}}
+.seg{display:flex;gap:8px}.seg button{flex:1;font:inherit;min-height:48px;border-radius:12px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);cursor:pointer}
+.seg button.on{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--cd);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;font:inherit;font-size:12px;border:0;background:none;color:var(--mu);min-height:62px;cursor:pointer}
+nav button b{display:block;font-size:22px;font-weight:400;line-height:1.2}
+nav button.on{color:var(--ac);font-weight:700}
+#md{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:10}
+#md.on{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:720px;max-height:92%;overflow:auto;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom,0px))}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;display:none;z-index:20;max-width:90%}
+.bar{display:flex;align-items:center;gap:10px;margin:6px 0}.bar i{display:block;height:10px;background:var(--ac);border-radius:5px;min-width:4px}
+.out{white-space:pre-wrap;word-break:break-all;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<section id="s0"></section>
+<section id="s1">
+<h1>保存</h1><p class="mu">貼り付けた文章は加工せず、そのまま保存します。</p>
+<label for="ct">原文</label><textarea id="ct" placeholder="ここに発言をペースト" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+<label>発言者</label><div class="seg" id="sp"><button data-v="user" class="on">自分</button><button data-v="assistant">AI</button></div>
+<label for="dt">発言日</label><input type="date" id="dt">
+<label>重み（検索用の目印）</label><p class="mu" style="margin:0 0 6px;font-size:13px">★は検索しやすくするためのメモです。原文の価値や正確性を表すものではありません。</p><div class="seg" id="pr"><button data-v="1" class="on">★1</button><button data-v="2">★2</button><button data-v="3">★3</button></div>
+<label for="pv">AIサービス名</label><select id="pv"><option value="">未指定</option><option>ChatGPT</option><option>Gemini</option><option>Claude</option><option>Copilot</option><option>Grok</option><option>Perplexity</option><option value="__other">その他（手入力）</option></select><input id="pvo" placeholder="サービス名を入力" autocomplete="off" style="display:none;margin-top:8px">
+<label for="md2">モデル名（任意）</label><input id="md2" placeholder="例: GPT-5" autocomplete="off">
+<label for="tt">タイトル</label><input id="tt" placeholder="会話のタイトル" autocomplete="off">
+<div class="row"><button class="btn p" id="bpre">プレビューを確認</button></div>
+<div id="err"></div><div id="prev"></div>
+</section>
+<section id="s2">
+<h1>閲覧・検索</h1>
+<label for="q">全文検索</label><input id="q" type="search" placeholder="原文・タイトルを検索">
+<div class="row"><div><label for="f1">発言日（から）</label><input type="date" id="f1"></div><div><label for="f2">発言日（まで）</label><input type="date" id="f2"></div></div>
+<div class="row"><div><label for="fs">発言者</label><select id="fs"><option value="">すべて</option><option value="user">自分</option><option value="assistant">AI</option></select></div>
+<div><label for="fp">重み（検索用の目印）</label><select id="fp"><option value="1">すべて</option><option value="2">★2以上</option><option value="3">★3のみ</option></select></div></div>
+<label for="ft">タイトルで絞り込み</label><input id="ft" placeholder="タイトルの一部">
+<p class="mu" id="cnt"></p>
+<div class="row"><button class="btn" id="bmd">この結果をMarkdownでコピー</button></div>
+<div id="list"></div>
+</section>
+<section id="s3">
+<h1>データ管理</h1><div class="card mu" style="font-size:14px"><b style="color:var(--tx)">保存場所と端末間の受け渡し</b><br>・データはこのブラウザの中だけに保存されます。自動同期はしません。<br>・iPhoneとPC、別のブラウザ、プライベートブラウズは、それぞれ別のデータになります。<br>・端末間の受け渡しはJSONで行います。元の端末で書き出し、もう一方でインポートすると、未登録の分だけが追加されます。<br>・ブラウザのデータ削除や端末の故障で消えることがあります。定期的に書き出してください。</div>
+<div class="card" id="dev"></div>
+<h2>エクスポート</h2>
+<div class="row"><button class="btn p" id="bex">JSONをダウンロード</button><button class="btn" id="bcp">JSONをコピー</button></div>
+<h2>インポート（差分マージ）</h2>
+<input type="file" id="fl" accept=".json,application/json">
+<label for="pt">またはJSONを貼り付け</label><textarea id="pt" style="min-height:90px" placeholder='{"records":[...]}'></textarea>
+<div class="row"><button class="btn p" id="bim">貼り付けたJSONを取り込む</button></div>
+<h2>整合性チェック</h2><p class="mu" style="font-size:14px">SHA-256は、保存後の変更や破損を見つけるための指紋です。改ざんがないことの絶対的な証明ではなく、暗号化や電子署名でもありません。原文とハッシュの両方が書き換えられた場合は検出できません。この機能はHTTPSなどの安全な環境が必要です。</p>
+<div class="row"><button class="btn" id="bck">全件のSHA-256を検証</button></div>
+<div class="card out" id="out">結果がここに表示されます。</div>
+</section>
+</main>
+<div id="md"><div class="sheet" id="sh"></div></div>
+<div id="toast"></div>
+<nav id="nv"><button data-n="0" class="on"><b>🏠</b>ホーム</button><button data-n="1"><b>✍️</b>保存</button><button data-n="2"><b>🔎</b>閲覧</button><button data-n="3"><b>🗂</b>データ</button></nav>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const K='verbatim_records_v1';let loadErr=null;
+const okCrypto=!!(window.crypto&&crypto.subtle);
+const load=()=>{try{const s=localStorage.getItem(K);if(!s)return[];const d=JSON.parse(s);if(!Array.isArray(d))throw new Error('保存データの形式が配列ではありません');return d}catch(e){loadErr=(e&&e.message)||String(e);return[]}};
+function store(r){if(loadErr)return{ok:false,err:'既存の保存データを読み込めなかったため、上書き防止のため保存を停止しています（'+loadErr+'）'};
+try{const j=JSON.stringify(r);localStorage.setItem(K,j);if(localStorage.getItem(K)!==j)throw new Error('書き込み後の読み戻しが一致しませんでした')}
+catch(e){try{localStorage.setItem(K,JSON.stringify(R))}catch(x){}return{ok:false,err:(e&&(e.name==='QuotaExceededError'||e.code===22))?'ブラウザの保存容量がいっぱいです':((e&&e.message)||String(e))}}
+R=r;return{ok:true}}
+let R=load(),sp='user',pr=1,pend=null;
+async function sha(s){if(!okCrypto)throw new Error('SHA-256を利用できません。HTTPSなどの安全な環境（https://またはlocalhost）で開いてください。');const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',2600)}
+async function copy(t){try{await navigator.clipboard.writeText(t);toast('コピーしました');return}catch(e){}
+const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}a.remove();toast(ok?'コピーしました':'コピーできませんでした')}
+const stars=n=>'★'.repeat(n);const who=s=>s==='user'?'自分':'AI';
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const cmp=(a,b)=>b.date.localeCompare(a.date)||b.saved_at.localeCompare(a.saved_at);
+function go(n){document.querySelectorAll('section').forEach((s,i)=>s.classList.toggle('on',i===n));
+document.querySelectorAll('#nv button').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));scrollTo(0,0);
+if(n===0)home();if(n===2)browse();if(n===3)devInfo()}
+function card(r){return`<div class="card" data-id="${esc(r.id)}"><div class="meta"><span>${esc(r.date)}</span><span class="st">${stars(r.priority)}</span><span class="tag">${who(r.speaker)}</span>${r.source&&r.source.conversation_title?`<span>${esc(r.source.conversation_title)}</span>`:''}</div><div class="pv">${esc(r.content)}</div></div>`}
+function home(){const L=[...R].sort(cmp),m={};R.forEach(r=>{const k=r.date.slice(0,7);m[k]=(m[k]||0)+1});
+const ks=Object.keys(m).sort().reverse(),mx=Math.max(1,...Object.values(m));
+$('s0').innerHTML=`<h1>原文保管庫</h1><p class="mu">全${R.length}件を保存中。一言一句、そのまま。</p>${loadErr?'<div class="card" style="border-color:var(--dn)">⚠ 保存データを読み込めませんでした：'+esc(loadErr)+'<br>上書き防止のため、保存を停止しています。</div>':''}${okCrypto?'':'<div class="card" style="border-color:var(--dn)">⚠ SHA-256を使えない環境です。HTTPSなどの安全な環境で開かないと保存できません。</div>'}<div class="card mu" style="font-size:13px">データは、この端末のこのブラウザ内にだけ保存されます。自動同期はありません。端末間の受け渡しはJSONで行います（詳細は「データ」画面）。</div>
+<div class="row"><button class="btn p" onclick="go(1)">✍️ 発言を保存する</button><button class="btn" onclick="go(2)">🔎 閲覧・検索</button></div>
+<h2>最新の保存</h2>${L[0]?card(L[0]):'<div class="card mu">まだ保存がありません。「発言を保存する」から始めましょう。</div>'}
+<h2>月別の件数</h2>${ks.length?ks.map(k=>`<div class="bar"><span class="mu" style="width:70px">${k}</span><i style="width:${m[k]/mx*60}%"></i><b>${m[k]}</b></div>`).join(''):'<p class="mu">データがありません。</p>'}`}
+function seg(id,fn){$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;[...$(id).children].forEach(x=>x.classList.toggle('on',x===b));fn(b.dataset.v)})}
+seg('sp',v=>sp=v);seg('pr',v=>pr=+v);
+$('dt').value=today();
+$('pv').onchange=()=>{$('pvo').style.display=$('pv').value==='__other'?'block':'none'};
+$('bpre').onclick=()=>{const c=$('ct').value;if(c.length===0){toast('原文を入力してください');return}
+pend={c,date:$('dt').value||today(),sp,pr,pv:$('pv').value==='__other'?$('pvo').value:$('pv').value,md:$('md2').value,tt:$('tt').value};
+const lines=c.split('\n').length;
+$('prev').innerHTML=`<div class="card"><div class="meta"><span>${esc(pend.date)}</span><span class="st">${stars(pr)}</span><span class="tag">${who(sp)}</span><span>${esc(pend.pv||'サービス未入力')}</span></div>
+<div class="meta" style="margin-top:6px">${c.length}文字 / ${lines}行 / タイトル: ${esc(pend.tt||'（なし）')}</div>
+<div class="full">${esc(c)}</div><div class="row"><button class="btn" id="bcl">修正する</button><button class="btn p" id="bsv">この内容で保存</button></div></div>`;
+$('bcl').onclick=()=>{$('prev').innerHTML='';$('ct').focus()};$('bsv').onclick=save;$('prev').scrollIntoView({behavior:'smooth'})};
+function showErr(t,m,rec){$('err').innerHTML='<div class="card" style="border-color:var(--dn)"><b style="color:var(--dn)">⚠ '+esc(t)+'</b><p class="out">'+esc(m)+'</p><p class="mu" style="font-size:14px">入力した原文は消していません。「データ」画面のJSON書き出しで、保存済みのデータを退避できます。</p>'+(rec?'<div class="row"><button class="btn" id="rsq">未保存分を含むJSONをコピー</button></div>':'')+'</div>';
+if(rec)$('rsq').onclick=()=>copy(dump(rec));$('err').scrollIntoView({behavior:'smooth'});toast('保存に失敗しました')}
+async function save(){const p=pend;if(!p)return;
+if(R.some(r=>r.date===p.date&&r.content===p.c)&&!confirm('同じ日付・同じ原文の記録がすでにあります。\n別のレコードとして保存しますか？'))return;
+let h;try{h=await sha(p.c)}catch(e){showErr('ハッシュを計算できません',e.message);return}
+const rec={id:'rec_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),date:p.date,saved_at:new Date().toISOString(),speaker:p.sp,priority:p.pr,content:p.c,hash:h,
+provider:p.pv||null,model:p.md||null,source:{conversation_title:p.tt,selection_method:'copy'},integrity:'original',schema_version:1};
+const rs=store([...R,rec]);if(!rs.ok){showErr('保存に失敗しました',rs.err,rec);return}
+$('err').innerHTML='';pend=null;$('ct').value='';$('prev').innerHTML='';toast('保存しました');go(0)}
+function filt(){const q=$('q').value,a=$('f1').value,b=$('f2').value,s=$('fs').value,p=+$('fp').value,t=$('ft').value;
+return R.filter(r=>(!q||r.content.includes(q)||(r.source.conversation_title||'').includes(q))&&(!a||r.date>=a)&&(!b||r.date<=b)&&(!s||r.speaker===s)&&r.priority>=p&&(!t||(r.source.conversation_title||'').includes(t))).sort(cmp)}
+function browse(){const L=filt();$('cnt').textContent=L.length+'件 / 全'+R.length+'件';
+$('list').innerHTML=L.slice(0,200).map(card).join('')||'<div class="card mu">条件に合う記録がありません。</div>'+(L.length>200?'':'')}
+['q','f1','f2','fs','fp','ft'].forEach(i=>$(i).addEventListener('input',browse));
+function fence(c){let m=2;(c.match(/`+/g)||[]).forEach(x=>{if(x.length>m)m=x.length});return'`'.repeat(m+1)}
+function toMd(r){const f=fence(r.content);return`## ${r.source.conversation_title||'（無題）'}\n\n- 日付: ${r.date}\n- 発言者: ${who(r.speaker)}\n- 重み: ${stars(r.priority)}\n- サービス: ${r.provider||'-'}${r.model?' / '+r.model:''}\n- SHA-256: ${r.hash}\n\n${f}text\n${r.content}\n${f}\n`}
+function toCard(r){return`📅 ${r.date}　${stars(r.priority)}\n👤 ${who(r.speaker)}　💬 ${r.source.conversation_title||'（無題）'}${r.provider?'（'+r.provider+'）':''}\n──────────\n${r.content}`}
+$('bmd').onclick=()=>{const L=filt();if(!L.length){toast('出力する記録がありません');return}copy(L.map(toMd).join('\n---\n\n'))};
+document.addEventListener('click',e=>{const c=e.target.closest('.card[data-id]');if(c)openRec(c.dataset.id)});
+function openRec(id){const r=R.find(x=>x.id===id);if(!r)return;
+$('sh').innerHTML=`<div class="meta"><span>${esc(r.date)}</span><span class="st">${stars(r.priority)}</span><span class="tag">${who(r.speaker)}</span><span>${esc(r.source.conversation_title||'（無題）')}</span>${r.provider?`<span>${esc(r.provider)}${r.model?' / '+esc(r.model):''}</span>`:''}</div>
+<div class="full">${esc(r.content)}</div><p class="mu out">SHA-256: ${esc(r.hash)}</p>
+<div class="row"><button class="btn p" id="m1">Freeform用カードをコピー</button><button class="btn" id="m2">Markdownをコピー</button></div>
+<div class="row"><button class="btn" id="m3">ハッシュを検証</button><button class="btn" id="m5">原文のみコピー</button></div>
+<div class="row"><button class="btn d" id="m4">削除</button><button class="btn" id="m6">閉じる</button></div>`;
+$('md').classList.add('on');
+$('m1').onclick=()=>copy(toCard(r));$('m2').onclick=()=>copy(toMd(r));$('m5').onclick=()=>copy(r.content);
+$('m3').onclick=async()=>{try{toast(await sha(r.content)===r.hash?'✓ 一致：保存後の変更は検出されません':'⚠ 不一致：保存後に変更または破損した可能性があります')}catch(e){toast(e.message)}};
+$('m4').onclick=()=>{if(!confirm('この記録を削除します。元に戻せません。\n\n'+r.date+' / '+who(r.speaker)+'\n'+r.content.slice(0,40)+(r.content.length>40?'…':'')+'\n\n削除前にJSONの書き出しをおすすめします。'))return;const rs=store(R.filter(x=>x.id!==id));if(!rs.ok){toast('削除に失敗しました：'+rs.err);return}closeM();browse();home();toast('削除しました')};
+$('m6').onclick=closeM}
+function closeM(){$('md').classList.remove('on')}
+$('md').addEventListener('click',e=>{if(e.target===$('md'))closeM()});
+const dump=x=>JSON.stringify({schema_version:1,exported_at:new Date().toISOString(),exported_from:devName()||null,records:x?[...R,x]:R},null,2);
+$('bex').onclick=()=>{try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([dump()],{type:'application/json;charset=utf-8'}));a.download='verbatim_'+today()+'.json';document.body.appendChild(a);a.click();a.remove();toast('ダウンロードを開始しました。開始されない場合は「JSONをコピー」を使ってください')}catch(e){toast('ダウンロードできません。「JSONをコピー」を使ってください')}};
+$('bcp').onclick=()=>copy(dump());
+const out=t=>{$('out').textContent=t};
+function ua(){const u=navigator.userAgent;const os=/iPhone|iPad/.test(u)?'iOS':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'macOS':/Linux/.test(u)?'Linux':'不明';const br=/Edg\//.test(u)?'Edge':/CriOS|Chrome\//.test(u)?'Chrome':/FxiOS|Firefox\//.test(u)?'Firefox':/Safari\//.test(u)?'Safari':'不明';return os+' / '+br}
+function devName(){try{return localStorage.getItem('verbatim_device_name')||''}catch(e){return''}}
+function devInfo(){const last=R.map(r=>r.saved_at).sort().pop();
+$('dev').innerHTML='<b>この端末の保存状況</b><div class="out mu" style="margin-top:6px">端末名（書き出しJSONに記録）：<input id="dn" value="'+esc(devName())+'" placeholder="例: iPhone / 会社PC" style="min-height:42px;margin:4px 0">\nOS / ブラウザ：'+esc(ua())+'\n保存場所：このブラウザのlocalStorage（'+esc(location.origin||'不明')+'）\n保存件数：'+R.length+'件\n最新の保存日時：'+(last?esc(last):'なし')+'\nSHA-256：'+(okCrypto?'利用可':'利用不可')+'（安全な環境：'+(window.isSecureContext?'はい':'いいえ')+'）</div>';
+$('dn').oninput=e=>{try{localStorage.setItem('verbatim_device_name',e.target.value)}catch(x){}}}
+function chk(x){if(!x||typeof x!=='object'||Array.isArray(x))return'（オブジェクトではない項目）';
+const w=m=>(typeof x.id==='string'?x.id:'id不明')+': '+m;
+if(typeof x.id!=='string'||!x.id)return w('idが不正');
+if(typeof x.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(x.date)||isNaN(new Date(x.date+'T00:00:00Z')))return w('dateが不正');
+if(typeof x.saved_at!=='string'||isNaN(Date.parse(x.saved_at)))return w('saved_atが不正');
+if(x.speaker!=='user'&&x.speaker!=='assistant')return w('speakerが不正');
+if(![1,2,3].includes(x.priority))return w('priorityが不正');
+if(typeof x.content!=='string'||x.content.length===0)return w('contentが不正');
+if(typeof x.hash!=='string'||!/^[0-9a-f]{64}$/.test(x.hash))return w('hashの形式が不正');
+if(x.provider!==null&&typeof x.provider!=='string')return w('providerが不正');
+if(x.model!==null&&typeof x.model!=='string')return w('modelが不正');
+const s=x.source;if(!s||typeof s!=='object'||typeof s.conversation_title!=='string'||s.selection_method!=='copy')return w('sourceが不正');
+if(x.schema_version!==1)return w('schema_versionが不正');
+if(x.integrity!=='original')return w('integrityが不正');return null}
+async function imp(txt){let d;try{d=JSON.parse(txt)}catch(e){return out('JSONとして読み込めませんでした。')}
+const a=Array.isArray(d)?d:d&&d.records;if(!Array.isArray(a))return out('recordsが見つかりません。');
+const ids=new Map(R.map(r=>[r.id,r])),nr=[];let skip=0,conf=0,bad=0;const errs=[];
+for(const x of a){const pe=chk(x);if(pe){bad++;errs.push(pe);continue}
+let hh;try{hh=await sha(x.content)}catch(e){return out('取り込みを中止しました：'+e.message)}
+if(hh!==x.hash){bad++;errs.push(x.id+': hash不一致（原文が変更または破損）');continue}
+const o=ids.get(x.id);if(o){if(o.hash===x.hash)skip++;else{conf++;errs.push(x.id+': 同じidで内容が異なる（既存を保持）')}continue}
+ids.set(x.id,x);nr.push(x)}
+if(nr.length){const rs=store([...R,...nr]);if(!rs.ok)return out('取り込みに失敗しました（既存データは変更していません）\n'+rs.err+'\n\n先にJSONを書き出して退避してください。')}
+out(`取り込み結果\n追加: ${nr.length}件\nスキップ（同じidで内容も同一）: ${skip}件\n競合（同じidで内容が異なる・未取込）: ${conf}件\n不正データ（未取込）: ${bad}件${errs.length?'\n\n詳細:\n'+errs.slice(0,30).join('\n')+(errs.length>30?'\n…ほか'+(errs.length-30)+'件':''):''}`);home();devInfo()}
+$('fl').onchange=async e=>{const f=e.target.files[0];if(f){imp(await f.text());e.target.value=''}};
+$('bim').onclick=()=>{if($('pt').value)imp($('pt').value);else toast('JSONを貼り付けてください')};
+$('bck').onclick=async()=>{let ng=[];try{for(const r of R){if(await sha(r.content)!==r.hash)ng.push(r.id)}}catch(e){return out(e.message)}
+out(ng.length?`⚠ ${ng.length}件で不一致\n`+ng.join('\n'):`✓ 全${R.length}件のSHA-256が一致しました。`)};
+document.getElementById('nv').addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(+b.dataset.n)});
+go(0);
+</script>
+</body>
+</html>
